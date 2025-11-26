@@ -74,38 +74,23 @@
     <h2>About These Graphs</h2>
     <p>
         These network graphs summarize legislative trends that may affect the University of Illinois.  
-        Each graph is filtered by political impact, grouped under IGPA policy categories, and includes LLAMA-extracted 
-        features describing the bill’s impact on university-related policy domains and beneficiary groups.
+        They visualize LLAMA-extracted features describing policy actions, affected domains, and (in the detailed models) 
+        intended beneficiaries.
     </p>
 
-        <div class="graph-section">
-        <h2>Three-Layer Impact Graphs</h2>
-        <p>
-            These graphs show the relationship between:  
-            <strong>Policy Aspect → Legislative Action (Increase/Decrease) → Intended Beneficiary.</strong>
-        </p>
-        <ul>
-            <li><a href="3layer_graphs/3layer_a_i.html">Artificial Intelligence (A.I.)</a></li>
-            <li><a href="3layer_graphs/3layer_artificial_intelligence.html">Artificial Intelligence (Full)</a></li>
-            <li><a href="3layer_graphs/3layer_behavioral_health.html">Behavioral Health</a></li>
-            <li><a href="3layer_graphs/3layer_criminal_justice_reform.html">Criminal Justice Reform</a></li>
-            <li><a href="3layer_graphs/3layer_environmental_justice.html">Environmental Justice</a></li>
-            <li><a href="3layer_graphs/3layer_finance.html">Finance</a></li>
-            <li><a href="3layer_graphs/3layer_hemp.html">Hemp</a></li>
-            <li><a href="3layer_graphs/3layer_opioid.html">Opioid</a></li>
-            <li><a href="3layer_graphs/3layer_pension.html">Pension</a></li>
-            <li><a href="3layer_graphs/3layer_restorative_justice.html">Restorative Justice</a></li>
-            <li><a href="3layer_graphs/3layer_revenue.html">Revenue</a></li>
-            <li><a href="3layer_graphs/3layer_substance_abuse_disorders.html">Substance Abuse Disorders</a></li>
-            <li><a href="3layer_graphs/3layer_tax.html">Tax</a></li>
-        </ul>
-    </div>
-    
+    <!-- =============================== -->
+    <!-- BASIC GRAPHS FIRST -->
+    <!-- =============================== -->
+
     <div class="graph-section">
         <h2>Basic Impact Graphs</h2>
         <p>
-            These graphs show the direct connections between policy aspects and their impacts, grouped by category.
+            These graphs show the direct relationship between a policy aspect and the type of action being proposed 
+            (such as increasing, decreasing, modifying, or administering something).  
+            <strong>They do not include intended beneficiaries</strong>—only the policy action and what it applies to.
+            These tend to be the cleanest and most visually interpretable graphs.
         </p>
+
         <ul>
             <li><a href="Basic Graphs/network_a_i.html">Artificial Intelligence (A.I.)</a></li>
             <li><a href="Basic Graphs/network_artificial_intelligence.html">Artificial Intelligence (Full)</a></li>
@@ -123,6 +108,37 @@
         </ul>
     </div>
 
+    <!-- =============================== -->
+    <!-- THREE-LAYER GRAPHS SECOND -->
+    <!-- =============================== -->
+
+    <div class="graph-section">
+        <h2>Three-Layer Impact Graphs</h2>
+        <p>
+            These graphs show a more detailed chain of information:
+            <strong>Policy Aspect → Legislative Action (Increase/Decrease/etc.) → Intended Beneficiary.</strong>
+            <br><br>
+            They represent what the bill seeks to change, what specific policy target it acts upon, 
+            and <strong>who is intended to benefit</strong>. These models reveal legislative motivations and 
+            stakeholder impacts, making them ideal for deeper analysis.
+        </p>
+
+        <ul>
+            <li><a href="3layer_graphs/3layer_a_i.html">Artificial Intelligence (A.I.)</a></li>
+            <li><a href="3layer_graphs/3layer_artificial_intelligence.html">Artificial Intelligence (Full)</a></li>
+            <li><a href="3layer_graphs/3layer_behavioral_health.html">Behavioral Health</a></li>
+            <li><a href="3layer_graphs/3layer_criminal_justice_reform.html">Criminal Justice Reform</a></li>
+            <li><a href="3layer_graphs/3layer_environmental_justice.html">Environmental Justice</a></li>
+            <li><a href="3layer_graphs/3layer_finance.html">Finance</a></li>
+            <li><a href="3layer_graphs/3layer_hemp.html">Hemp</a></li>
+            <li><a href="3layer_graphs/3layer_opioid.html">Opioid</a></li>
+            <li><a href="3layer_graphs/3layer_pension.html">Pension</a></li>
+            <li><a href="3layer_graphs/3layer_restorative_justice.html">Restorative Justice</a></li>
+            <li><a href="3layer_graphs/3layer_revenue.html">Revenue</a></li>
+            <li><a href="3layer_graphs/3layer_substance_abuse_disorders.html">Substance Abuse Disorders</a></li>
+            <li><a href="3layer_graphs/3layer_tax.html">Tax</a></li>
+        </ul>
+    </div>
 
 </div>
 
