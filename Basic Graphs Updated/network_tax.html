@@ -1,0 +1,429 @@
+<html>
+    <head>
+        <meta charset="utf-8">
+        
+            <script>function neighbourhoodHighlight(params) {
+  // console.log("in nieghbourhoodhighlight");
+  allNodes = nodes.get({ returnType: "Object" });
+  // originalNodes = JSON.parse(JSON.stringify(allNodes));
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    highlightActive = true;
+    var i, j;
+    var selectedNode = params.nodes[0];
+    var degrees = 2;
+
+    // mark all nodes as hard to read.
+    for (let nodeId in allNodes) {
+      // nodeColors[nodeId] = allNodes[nodeId].color;
+      allNodes[nodeId].color = "rgba(200,200,200,0.5)";
+      if (allNodes[nodeId].hiddenLabel === undefined) {
+        allNodes[nodeId].hiddenLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+    var connectedNodes = network.getConnectedNodes(selectedNode);
+    var allConnectedNodes = [];
+
+    // get the second degree nodes
+    for (i = 1; i < degrees; i++) {
+      for (j = 0; j < connectedNodes.length; j++) {
+        allConnectedNodes = allConnectedNodes.concat(
+          network.getConnectedNodes(connectedNodes[j])
+        );
+      }
+    }
+
+    // all second degree nodes get a different color and their label back
+    for (i = 0; i < allConnectedNodes.length; i++) {
+      // allNodes[allConnectedNodes[i]].color = "pink";
+      allNodes[allConnectedNodes[i]].color = "rgba(150,150,150,0.75)";
+      if (allNodes[allConnectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[allConnectedNodes[i]].label =
+          allNodes[allConnectedNodes[i]].hiddenLabel;
+        allNodes[allConnectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // all first degree nodes get their own color and their label back
+    for (i = 0; i < connectedNodes.length; i++) {
+      // allNodes[connectedNodes[i]].color = undefined;
+      allNodes[connectedNodes[i]].color = nodeColors[connectedNodes[i]];
+      if (allNodes[connectedNodes[i]].hiddenLabel !== undefined) {
+        allNodes[connectedNodes[i]].label =
+          allNodes[connectedNodes[i]].hiddenLabel;
+        allNodes[connectedNodes[i]].hiddenLabel = undefined;
+      }
+    }
+
+    // the main node gets its own color and its label back.
+    // allNodes[selectedNode].color = undefined;
+    allNodes[selectedNode].color = nodeColors[selectedNode];
+    if (allNodes[selectedNode].hiddenLabel !== undefined) {
+      allNodes[selectedNode].label = allNodes[selectedNode].hiddenLabel;
+      allNodes[selectedNode].hiddenLabel = undefined;
+    }
+  } else if (highlightActive === true) {
+    // console.log("highlightActive was true");
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      // allNodes[nodeId].color = "purple";
+      allNodes[nodeId].color = nodeColors[nodeId];
+      // delete allNodes[nodeId].color;
+      if (allNodes[nodeId].hiddenLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].hiddenLabel;
+        allNodes[nodeId].hiddenLabel = undefined;
+      }
+    }
+    highlightActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    // console.log("Nothing was selected");
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        // console.log(allNodes[nodeId]);
+        // allNodes[nodeId].color = {};
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function filterHighlight(params) {
+  allNodes = nodes.get({ returnType: "Object" });
+  // if something is selected:
+  if (params.nodes.length > 0) {
+    filterActive = true;
+    let selectedNodes = params.nodes;
+
+    // hiding all nodes and saving the label
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = true;
+      if (allNodes[nodeId].savedLabel === undefined) {
+        allNodes[nodeId].savedLabel = allNodes[nodeId].label;
+        allNodes[nodeId].label = undefined;
+      }
+    }
+
+    for (let i=0; i < selectedNodes.length; i++) {
+      allNodes[selectedNodes[i]].hidden = false;
+      if (allNodes[selectedNodes[i]].savedLabel !== undefined) {
+        allNodes[selectedNodes[i]].label = allNodes[selectedNodes[i]].savedLabel;
+        allNodes[selectedNodes[i]].savedLabel = undefined;
+      }
+    }
+
+  } else if (filterActive === true) {
+    // reset all nodes
+    for (let nodeId in allNodes) {
+      allNodes[nodeId].hidden = false;
+      if (allNodes[nodeId].savedLabel !== undefined) {
+        allNodes[nodeId].label = allNodes[nodeId].savedLabel;
+        allNodes[nodeId].savedLabel = undefined;
+      }
+    }
+    filterActive = false;
+  }
+
+  // transform the object into an array
+  var updateArray = [];
+  if (params.nodes.length > 0) {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  } else {
+    for (let nodeId in allNodes) {
+      if (allNodes.hasOwnProperty(nodeId)) {
+        updateArray.push(allNodes[nodeId]);
+      }
+    }
+    nodes.update(updateArray);
+  }
+}
+
+function selectNode(nodes) {
+  network.selectNodes(nodes);
+  neighbourhoodHighlight({ nodes: nodes });
+  return nodes;
+}
+
+function selectNodes(nodes) {
+  network.selectNodes(nodes);
+  filterHighlight({nodes: nodes});
+  return nodes;
+}
+
+function highlightFilter(filter) {
+  let selectedNodes = []
+  let selectedProp = filter['property']
+  if (filter['item'] === 'node') {
+    let allNodes = nodes.get({ returnType: "Object" });
+    for (let nodeId in allNodes) {
+      if (allNodes[nodeId][selectedProp] && filter['value'].includes((allNodes[nodeId][selectedProp]).toString())) {
+        selectedNodes.push(nodeId)
+      }
+    }
+  }
+  else if (filter['item'] === 'edge'){
+    let allEdges = edges.get({returnType: 'object'});
+    // check if the selected property exists for selected edge and select the nodes connected to the edge
+    for (let edge in allEdges) {
+      if (allEdges[edge][selectedProp] && filter['value'].includes((allEdges[edge][selectedProp]).toString())) {
+        selectedNodes.push(allEdges[edge]['from'])
+        selectedNodes.push(allEdges[edge]['to'])
+      }
+    }
+  }
+  selectNodes(selectedNodes)
+}</script>
+            <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/dist/vis-network.min.css" integrity="sha512-WgxfT5LWjfszlPHXRmBWHkV2eceiWTOBvrKCNbdgDYTHrT2AeLCGbF4sZlZw3UMN3WtL0tGUoIAKsu8mllg/XA==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+            <script src="https://cdnjs.cloudflare.com/ajax/libs/vis-network/9.1.2/dist/vis-network.min.js" integrity="sha512-LnvoEWDFrqGHlHmDD2101OrLcbsfkrzoSpvtSQtxK3RMnRV0eOkhhBN2dXHKRrUU8p2DGRTk35n4O8nWSVe1mQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+            
+            
+            
+            
+            
+            
+
+        
+<center>
+<h1>
+    <h2 style='text-align:center; font-family:Arial;'>
+        Direction–Target Network
+    </h2>
+    <h4 style='text-align:center; font-family:Arial; color:#444;'>
+        Category: Tax<br>
+        Impact ≥ 1<br>
+        Bills Included: 384
+    </h4>
+    </h1>
+</center>
+
+<!-- <link rel="stylesheet" href="../node_modules/vis/dist/vis.min.css" type="text/css" />
+<script type="text/javascript" src="../node_modules/vis/dist/vis.js"> </script>-->
+        <link
+          href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/css/bootstrap.min.css"
+          rel="stylesheet"
+          integrity="sha384-eOJMYsd53ii+scO/bJGFsiCZc+5NDVN2yr8+0RDqr0Ql0h+rP48ckxlpbzKgwra6"
+          crossorigin="anonymous"
+        />
+        <script
+          src="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta3/dist/js/bootstrap.bundle.min.js"
+          integrity="sha384-JEW9xMcG8R+pH31jmWH6WWP0WintQrMb4s7ZOdauHnUtxwoG2vI5DkLtS3qm9Ekf"
+          crossorigin="anonymous"
+        ></script>
+
+
+        <center>
+          <h1>
+    <h2 style='text-align:center; font-family:Arial;'>
+        Direction–Target Network
+    </h2>
+    <h4 style='text-align:center; font-family:Arial; color:#444;'>
+        Category: Tax<br>
+        Impact ≥ 1<br>
+        Bills Included: 384
+    </h4>
+    </h1>
+        </center>
+        <style type="text/css">
+
+             #mynetwork {
+                 width: 100%;
+                 height: 850px;
+                 background-color: #ffffff;
+                 border: 1px solid lightgray;
+                 position: relative;
+                 float: left;
+             }
+
+             
+
+             
+
+             
+        </style>
+    </head>
+
+
+    <body>
+        <div class="card" style="width: 100%">
+            
+            
+            <div id="mynetwork" class="card-body"></div>
+        </div>
+
+        
+        
+
+        <script type="text/javascript">
+
+              // initialize global variables.
+              var edges;
+              var nodes;
+              var allNodes;
+              var allEdges;
+              var nodeColors;
+              var originalNodes;
+              var network;
+              var container;
+              var options, data;
+              var filter = {
+                  item : '',
+                  property : '',
+                  value : []
+              };
+
+              
+
+              
+
+              // This method is responsible for drawing the graph, returns the drawn network
+              function drawGraph() {
+                  var container = document.getElementById('mynetwork');
+
+                  
+
+                  // parsing and collecting nodes and edges from the python
+                  nodes = new vis.DataSet([{"color": "#99ee99", "custom_data": {"count": 1, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e", "title": "Economic Growth \u0026 Investment"}, "id": "TGT:Economic Growth \u0026 Investment", "label": "Economic Growth \u0026 Investment", "shape": "dot", "size": 14, "title": ""}, {"color": "#cccccc", "id": "DIR:administrative", "label": "administrative", "shape": "dot", "size": 16, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 2, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e", "title": "Programs (Education / Housing / Community)"}, "id": "TGT:Programs (Education / Housing / Community)", "label": "Programs (Education / Housing / Community)", "shape": "dot", "size": 16, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 1, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e", "title": "Provisions / Requirements (Misc.)"}, "id": "TGT:Provisions / Requirements (Misc.)", "label": "Provisions / Requirements (Misc.)", "shape": "dot", "size": 14, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 43, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eChild Welfare, Social Services \u0026 Family Support\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eCivil Rights \u0026 Disability Rights Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eConsumer Protection \u0026 Financial Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEducation Funding \u0026 Higher Education\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e", "title": "Services / Compliance / Benefits"}, "id": "TGT:Services / Compliance / Benefits", "label": "Services / Compliance / Benefits", "shape": "dot", "size": 98, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 6, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e", "title": "Specific / Miscellaneous Aspects"}, "id": "TGT:Specific / Miscellaneous Aspects", "label": "Specific / Miscellaneous Aspects", "shape": "dot", "size": 24, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 70, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eChild Welfare, Social Services \u0026 Family Support\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTransportation, Vehicle \u0026 Road Safety\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eConsumer Protection \u0026 Financial Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eCivil Rights \u0026 Disability Rights Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eLocal Government \u0026 Municipal Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eInsurance Regulation \u0026 Healthcare Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e", "title": "Technical / Textual Aspects"}, "id": "TGT:Technical / Textual Aspects", "label": "Technical / Textual Aspects", "shape": "dot", "size": 152, "title": ""}, {"color": "#ff9999", "id": "DIR:decrease", "label": "decrease", "shape": "dot", "size": 16, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 3, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e", "title": "Funding / Allocation / Grants"}, "id": "TGT:Funding / Allocation / Grants", "label": "Funding / Allocation / Grants", "shape": "dot", "size": 18, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 2, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e", "title": "Opportunities (Economic / Educational / Workforce)"}, "id": "TGT:Opportunities (Economic / Educational / Workforce)", "label": "Opportunities (Economic / Educational / Workforce)", "shape": "dot", "size": 16, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 2, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e", "title": "Penalties / Offenses / Enforcement"}, "id": "TGT:Penalties / Offenses / Enforcement", "label": "Penalties / Offenses / Enforcement", "shape": "dot", "size": 16, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 7, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e", "title": "Revenue / Taxation / Collections"}, "id": "TGT:Revenue / Taxation / Collections", "label": "Revenue / Taxation / Collections", "shape": "dot", "size": 26, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 5, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e", "title": "Use Regulations \u0026 Usage Policies"}, "id": "TGT:Use Regulations \u0026 Usage Policies", "label": "Use Regulations \u0026 Usage Policies", "shape": "dot", "size": 22, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 28, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eChild Welfare, Social Services \u0026 Family Support\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eCivil Rights \u0026 Disability Rights Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEducation Funding \u0026 Higher Education\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eInsurance Regulation \u0026 Healthcare Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e", "title": "Access to Services \u0026 Resources"}, "id": "TGT:Access to Services \u0026 Resources", "label": "Access to Services \u0026 Resources", "shape": "dot", "size": 68, "title": ""}, {"color": "#66ccff", "id": "DIR:increase", "label": "increase", "shape": "dot", "size": 16, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 13, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Safety \u0026 Gun Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eChild Welfare, Social Services \u0026 Family Support\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eConsumer Protection \u0026 Financial Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e", "title": "Awareness / Public Education / Training"}, "id": "TGT:Awareness / Public Education / Training", "label": "Awareness / Public Education / Training", "shape": "dot", "size": 38, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 8, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eConsumer Protection \u0026 Financial Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eLocal Government \u0026 Municipal Policy\u003c/div\u003e", "title": "Consumer \u0026 Environmental Protection"}, "id": "TGT:Consumer \u0026 Environmental Protection", "label": "Consumer \u0026 Environmental Protection", "shape": "dot", "size": 28, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 40, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEnergy, Utilities \u0026 Renewable Energy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eLocal Government \u0026 Municipal Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e", "title": "Development / Infrastructure Support"}, "id": "TGT:Development / Infrastructure Support", "label": "Development / Infrastructure Support", "shape": "dot", "size": 92, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 30, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTransportation, Vehicle \u0026 Road Safety\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eCivil Rights \u0026 Disability Rights Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e", "title": "Efficiency / Process Improvements"}, "id": "TGT:Efficiency / Process Improvements", "label": "Efficiency / Process Improvements", "shape": "dot", "size": 72, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 37, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eCivil Rights \u0026 Disability Rights Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eChild Welfare, Social Services \u0026 Family Support\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Safety \u0026 Gun Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eInsurance Regulation \u0026 Healthcare Finance\u003c/div\u003e", "title": "Financial \u0026 Support Services"}, "id": "TGT:Financial \u0026 Support Services", "label": "Financial \u0026 Support Services", "shape": "dot", "size": 86, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 10, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Safety \u0026 Gun Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eConsumer Protection \u0026 Financial Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTransportation, Vehicle \u0026 Road Safety\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e", "title": "Public Safety Standards \u0026 Measures"}, "id": "TGT:Public Safety Standards \u0026 Measures", "label": "Public Safety Standards \u0026 Measures", "shape": "dot", "size": 32, "title": ""}, {"color": "#99ee99", "custom_data": {"count": 66, "subcats": "\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTaxation \u0026 Property Tax Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTobacco, Cannabis, Gaming \u0026 Licensing Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eCivil Rights \u0026 Disability Rights Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eGeneral Government, State Administration \u0026 Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eConsumer Protection \u0026 Financial Regulation\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eEconomic Development \u0026 Community Development\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eK\u201312 School Policy \u0026 Teacher Policy\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eInsurance Regulation \u0026 Healthcare Finance\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003eTransportation, Vehicle \u0026 Road Safety\u003c/div\u003e\u003cdiv style=\u0027margin-left:12px;\u0027\u003ePublic Health \u0026 Healthcare Services\u003c/div\u003e", "title": "Transparency / Regulation Processes"}, "id": "TGT:Transparency / Regulation Processes", "label": "Transparency / Regulation Processes", "shape": "dot", "size": 144, "title": ""}]);
+                  edges = new vis.DataSet([{"arrows": "to", "from": "DIR:administrative", "title": "", "to": "TGT:Economic Growth \u0026 Investment"}, {"arrows": "to", "from": "DIR:administrative", "title": "", "to": "TGT:Programs (Education / Housing / Community)"}, {"arrows": "to", "from": "DIR:administrative", "title": "", "to": "TGT:Provisions / Requirements (Misc.)"}, {"arrows": "to", "from": "DIR:administrative", "title": "", "to": "TGT:Services / Compliance / Benefits"}, {"arrows": "to", "from": "DIR:administrative", "title": "", "to": "TGT:Specific / Miscellaneous Aspects"}, {"arrows": "to", "from": "DIR:administrative", "title": "", "to": "TGT:Technical / Textual Aspects"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Economic Growth \u0026 Investment"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Funding / Allocation / Grants"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Opportunities (Economic / Educational / Workforce)"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Penalties / Offenses / Enforcement"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Programs (Education / Housing / Community)"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Provisions / Requirements (Misc.)"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Revenue / Taxation / Collections"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Services / Compliance / Benefits"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Specific / Miscellaneous Aspects"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Technical / Textual Aspects"}, {"arrows": "to", "from": "DIR:decrease", "title": "", "to": "TGT:Use Regulations \u0026 Usage Policies"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Access to Services \u0026 Resources"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Awareness / Public Education / Training"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Consumer \u0026 Environmental Protection"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Development / Infrastructure Support"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Economic Growth \u0026 Investment"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Efficiency / Process Improvements"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Financial \u0026 Support Services"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Funding / Allocation / Grants"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Opportunities (Economic / Educational / Workforce)"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Penalties / Offenses / Enforcement"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Programs (Education / Housing / Community)"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Provisions / Requirements (Misc.)"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Public Safety Standards \u0026 Measures"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Revenue / Taxation / Collections"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Services / Compliance / Benefits"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Specific / Miscellaneous Aspects"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Transparency / Regulation Processes"}, {"arrows": "to", "from": "DIR:increase", "title": "", "to": "TGT:Use Regulations \u0026 Usage Policies"}]);
+
+                  nodeColors = {};
+                  allNodes = nodes.get({ returnType: "Object" });
+                  for (nodeId in allNodes) {
+                    nodeColors[nodeId] = allNodes[nodeId].color;
+                  }
+                  allEdges = edges.get({ returnType: "Object" });
+                  // adding nodes and edges to the graph
+                  data = {nodes: nodes, edges: edges};
+
+                  var options = {
+    "configure": {
+        "enabled": false
+    },
+    "edges": {
+        "color": {
+            "inherit": true
+        },
+        "smooth": {
+            "enabled": true,
+            "type": "dynamic"
+        }
+    },
+    "interaction": {
+        "dragNodes": true,
+        "hideEdgesOnDrag": false,
+        "hideNodesOnDrag": false
+    },
+    "physics": {
+        "enabled": true,
+        "stabilization": {
+            "enabled": true,
+            "fit": true,
+            "iterations": 1000,
+            "onlyDynamicEdges": false,
+            "updateInterval": 50
+        }
+    }
+};
+
+                  
+
+
+                  
+
+                  network = new vis.Network(container, data, options);
+
+                  
+
+                  
+
+                  
+
+
+                  
+
+                  return network;
+
+              }
+              drawGraph();
+        </script>
+    
+<script type="text/javascript">
+
+function showInfoBox(title, count, subs) {
+
+    let box = document.getElementById("infoBox");
+
+    if (!box) {
+        box = document.createElement("div");
+        box.id = "infoBox";
+        box.style.position = "fixed";
+        box.style.top = "80px";
+        box.style.right = "20px";
+        box.style.background = "rgba(255,255,255,0.97)";
+        box.style.padding = "15px";
+        box.style.border = "1px solid #ccc";
+        box.style.borderRadius = "8px";
+        box.style.width = "300px";
+        box.style.fontFamily = "Arial";
+        box.style.fontSize = "14px";
+        box.style.boxShadow = "0px 4px 10px rgba(0,0,0,0.2)";
+        box.style.zIndex = "9999";
+        document.body.appendChild(box);
+    }
+
+    box.innerHTML =
+        "<h3 style='margin-top:0; font-size:17px;'>" + title + "</h3>" +
+        "<b>Bill Count:</b> " + count + "<br><br>" +
+        "<b>Subcategories:</b><br>" + subs;
+}
+
+
+// ------------------------------------------------------------
+// Attach click AFTER network has rendered (Guaranteed working)
+// ------------------------------------------------------------
+document.addEventListener("DOMContentLoaded", function() {
+
+    // Find the network object that PyVis generated
+    if (window.network) {
+
+        window.network.on("click", function(params) {
+            if (params.nodes.length > 0) {
+                const nodeId = params.nodes[0];
+                const node = window.nodes.get(nodeId);
+
+                if (node && node.custom_data) {
+                    showInfoBox(
+                        node.custom_data.title,
+                        node.custom_data.count,
+                        node.custom_data.subcats
+                    );
+                }
+            }
+        });
+
+    } else {
+        console.error("PyVis network not found.");
+    }
+
+});
+</script>
+
+</body>
+</html>
