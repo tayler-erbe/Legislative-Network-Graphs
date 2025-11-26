@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Legislative Network Graphs</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f7f7f7;
+        }
+        header {
+            background: #003366;
+            color: white;
+            padding: 20px 40px;
+        }
+        header h1 {
+            margin: 0;
+            font-size: 32px;
+        }
+        header p {
+            margin-top: 8px;
+            font-size: 16px;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        h2 {
+            color: #003366;
+            margin-top: 40px;
+            border-bottom: 2px solid #003366;
+            padding-bottom: 6px;
+        }
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+        li {
+            margin: 10px 0;
+        }
+        a {
+            text-decoration: none;
+            color: #0055aa;
+            font-weight: bold;
+        }
+        a:hover {
+            text-decoration: underline;
+        }
+        .graph-section {
+            margin-top: 30px;
+        }
+    </style>
+</head>
+
+<body>
+
+<header>
+    <h1>Legislative Network Graphs</h1>
+    <p>
+        Interactive visualizations of Illinois legislation, categorized by policy area and enriched with 
+        LLAMA-extracted features indicating political impact, intended beneficiaries, and increasing/decreasing aspects.
+    </p>
+</header>
+
+<div class="container">
+
+    <h2>About These Graphs</h2>
+    <p>
+        These network graphs summarize legislative trends that may affect the University of Illinois.  
+        Each graph is filtered by political impact, grouped under IGPA policy categories, and includes LLAMA-extracted 
+        features describing the bill’s impact on university-related policy domains and beneficiary groups.
+    </p>
+
+    <div class="graph-section">
+        <h2>Three-Layer Impact Graphs</h2>
+        <p>
+            These graphs show the relationship between:  
+            <strong>Policy Aspect → Legislative Action (Increase/Decrease) → Intended Beneficiary.</strong>
+        </p>
+        <ul>
+            <li><a href="3layer_graphs/3layer_a_i.html">Artificial Intelligence</a></li>
+            <li><a href="3layer_graphs/3layer_artificial_intelligence.html">Artificial Intelligence (alt)</a></li>
+            <li><a href="3layer_graphs/3layer_behavioral_health.html">Behavioral Health</a></li>
+            <li><a href="3layer_graphs/3layer_criminal_justice_reform.html">Criminal Justice Reform</a></li>
+            <li><a href="3layer_graphs/3layer_environmental_justice.html">Environmental Justice</a></li>
+            <li><a href="3layer_graphs/3layer_finance.html">Finance</a></li>
+            <li><a href="3layer_graphs/3layer_hemp.html">Hemp</a></li>
+            <li><a href="3layer_graphs/3layer_opioid.html">Opioid</a></li>
+            <li><a href="3layer_graphs/3layer_pension.html">Pension</a></li>
+        </ul>
+    </div>
+
+    <div class="graph-section">
+        <h2>Category-Standardized Impact Graphs</h2>
+        <p>
+            These graphs group legislation by standardized impact categories, showing clusters of bills that increase 
+            or decrease specific aspects relevant to university operations and state policy.
+        </p>
+
+        <ul>
+            <!-- You can add more here once you upload the category-standardized graphs -->
+            <li><em>More graphs coming soon...</em></li>
+        </ul>
+    </div>
+
+</div>
+
+</body>
+</html>
