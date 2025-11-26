@@ -19,6 +19,4 @@ Policy Aspect → Legislative Action (Increase/Decrease) → Beneficiary Categor
 Standardized Category Graphs
 Visualize all bills grouped into normalized policy categories, highlighting which aspects of university operations are being targeted and how frequently.
 
-These graphs provide an at-a-glance way to explore legislative intent, impact pathways, and beneficiary patterns across the Illinois legislative landscape. Let me know if you'd like this even shorter or adapted to a README intro paragraph.
-
-You said:
+These graphs provide an at-a-glance way to explore legislative intent, impact pathways, and beneficiary patterns across the Illinois legislative landscape. 
